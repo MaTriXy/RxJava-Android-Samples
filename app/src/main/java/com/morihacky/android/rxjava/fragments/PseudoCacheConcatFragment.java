@@ -1,14 +1,15 @@
-package com.morihacky.android.rxjava;
+package com.morihacky.android.rxjava.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Bind;
 import butterknife.OnClick;
 import com.morihacky.android.rxjava.R;
 import com.morihacky.android.rxjava.retrofit.Contributor;
@@ -25,13 +26,12 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import timber.log.Timber;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 
 public class PseudoCacheConcatFragment
       extends BaseFragment {
 
-    @InjectView(R.id.log_list) ListView _resultList;
+    @Bind(R.id.log_list) ListView _resultList;
 
     private Subscription _subscription = null;
     private HashMap<String, Long> _contributionMap = null;
@@ -42,7 +42,7 @@ public class PseudoCacheConcatFragment
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.fragment_pseudo_cache_concat, container, false);
-        ButterKnife.inject(this, layout);
+        ButterKnife.bind(this, layout);
         _initializeCache();
         return layout;
     }
@@ -129,7 +129,7 @@ public class PseudoCacheConcatFragment
         //.setLogLevel(RestAdapter.LogLevel.FULL);
 
         final String githubToken = getResources().getString(R.string.github_oauth_token);
-        if (!isNullOrEmpty(githubToken)) {
+        if (!TextUtils.isEmpty(githubToken)) {
             builder.setRequestInterceptor(new RequestInterceptor() {
                 @Override
                 public void intercept(RequestFacade request) {

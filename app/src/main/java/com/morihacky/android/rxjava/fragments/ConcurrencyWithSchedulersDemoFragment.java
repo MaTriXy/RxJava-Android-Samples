@@ -1,4 +1,4 @@
-package com.morihacky.android.rxjava;
+package com.morihacky.android.rxjava.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -10,43 +10,42 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Bind;
 import butterknife.OnClick;
 import com.morihacky.android.rxjava.R;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import rx.Observable;
-import rx.Subscriber;
-import rx.functions.Action0;
-import rx.functions.Action1;
+import rx.Observer;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
-import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
-public class PollingFragment
+public class ConcurrencyWithSchedulersDemoFragment
       extends BaseFragment {
 
-    public static final int INITIAL_DELAY = 0;
-    public static final int POLLING_INTERVAL = 1000;
-    @InjectView(R.id.list_threading_log) ListView _logsList;
+    @Bind(R.id.progress_operation_running) ProgressBar _progress;
+    @Bind(R.id.list_threading_log) ListView _logsList;
 
     private LogAdapter _adapter;
     private List<String> _logs;
-    private CompositeSubscription _subscriptions;
-    private int _counter = 0;
+    private Subscription _subscription;
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        _subscriptions.unsubscribe();
+        if (_subscription != null) {
+            _subscription.unsubscribe();
+        }
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        _subscriptions = new CompositeSubscription();
         _setupLogger();
     }
 
@@ -54,49 +53,79 @@ public class PollingFragment
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_polling, container, false);
-        ButterKnife.inject(this, layout);
+        View layout = inflater.inflate(R.layout.fragment_concurrency_schedulers, container, false);
+        ButterKnife.bind(this, layout);
         return layout;
     }
 
-    @OnClick(R.id.btn_start_simple_polling)
-    public void onStartSimplePollingClicked() {
-        _subscriptions.add(Observable.create(new Observable.OnSubscribe<String>() {
-            @Override
-            public void call(final Subscriber<? super String> observer) {
+    @OnClick(R.id.btn_start_operation)
+    public void startLongOperation() {
 
-                Schedulers.newThread().createWorker() //
-                      .schedulePeriodically(new Action0() {
-                          @Override
-                          public void call() {
-                              observer.onNext(_doNetworkCallAndGetStringResult());
-                          }
-                      }, INITIAL_DELAY, POLLING_INTERVAL, TimeUnit.MILLISECONDS);
-            }
-        }).take(10).subscribe(new Action1<String>() {
+        _progress.setVisibility(View.VISIBLE);
+        _log("Button Clicked");
+
+        _subscription = _getObservable()//
+              .subscribeOn(Schedulers.io())
+              .observeOn(AndroidSchedulers.mainThread())
+              .subscribe(_getObserver());                             // Observer
+    }
+
+    private Observable<Boolean> _getObservable() {
+        return Observable.just(true).map(new Func1<Boolean, Boolean>() {
             @Override
-            public void call(String s) {
-                _log(String.format("String polling - %s", s));
+            public Boolean call(Boolean aBoolean) {
+                _log("Within Observable");
+                _doSomeLongOperation_thatBlocksCurrentThread();
+                return aBoolean;
             }
-        }));
+        });
+    }
+
+    /**
+     * Observer that handles the result through the 3 important actions:
+     *
+     * 1. onCompleted
+     * 2. onError
+     * 3. onNext
+     */
+    private Observer<Boolean> _getObserver() {
+        return new Observer<Boolean>() {
+
+            @Override
+            public void onCompleted() {
+                _log("On complete");
+                _progress.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Timber.e(e, "Error in RxJava Demo concurrency");
+                _log(String.format("Boo! Error %s", e.getMessage()));
+                _progress.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onNext(Boolean bool) {
+                _log(String.format("onNext with return value \"%b\"", bool));
+            }
+        };
     }
 
     // -----------------------------------------------------------------------------------
     // Method that help wiring up the example (irrelevant to RxJava)
 
-    private String _doNetworkCallAndGetStringResult() {
+    private void _doSomeLongOperation_thatBlocksCurrentThread() {
+        _log("performing long operation");
 
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             Timber.d("Operation was interrupted");
         }
-        _counter++;
-
-        return String.valueOf(_counter);
     }
 
     private void _log(String logMsg) {
+
         if (_isCurrentlyOnMainThread()) {
             _logs.add(0, logMsg + " (main thread) ");
             _adapter.clear();

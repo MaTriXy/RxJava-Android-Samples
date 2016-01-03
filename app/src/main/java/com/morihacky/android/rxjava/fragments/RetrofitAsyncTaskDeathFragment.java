@@ -1,4 +1,4 @@
-package com.morihacky.android.rxjava;
+package com.morihacky.android.rxjava.fragments;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,27 +11,26 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Bind;
 import butterknife.OnClick;
+import com.morihacky.android.rxjava.R;
 import com.morihacky.android.rxjava.retrofit.GithubApi;
 import com.morihacky.android.rxjava.retrofit.User;
 import java.util.ArrayList;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
-import rx.Observable;
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
+import static android.text.TextUtils.isEmpty;
 import static java.lang.String.format;
 
 public class RetrofitAsyncTaskDeathFragment
       extends Fragment {
 
-    @InjectView(R.id.btn_demo_retrofit_async_death_username) EditText _username;
-    @InjectView(R.id.log_list) ListView _resultList;
+    @Bind(R.id.btn_demo_retrofit_async_death_username) EditText _username;
+    @Bind(R.id.log_list) ListView _resultList;
 
     private GithubApi _api;
     private ArrayAdapter<String> _adapter;
@@ -50,7 +49,7 @@ public class RetrofitAsyncTaskDeathFragment
         View layout = inflater.inflate(R.layout.fragment_retrofit_async_task_death,
               container,
               false);
-        ButterKnife.inject(this, layout);
+        ButterKnife.bind(this, layout);
 
         _adapter = new ArrayAdapter<>(getActivity(),
               R.layout.item_log,
@@ -109,7 +108,7 @@ public class RetrofitAsyncTaskDeathFragment
         //.setLogLevel(RestAdapter.LogLevel.FULL);
 
         final String githubToken = getResources().getString(R.string.github_oauth_token);
-        if (!isNullOrEmpty(githubToken)) {
+        if (!isEmpty(githubToken)) {
             builder.setRequestInterceptor(new RequestInterceptor() {
                 @Override
                 public void intercept(RequestFacade request) {
