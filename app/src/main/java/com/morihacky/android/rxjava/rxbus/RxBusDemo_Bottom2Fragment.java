@@ -7,13 +7,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import butterknife.ButterKnife;
-import butterknife.Bind;
+
 import com.morihacky.android.rxjava.MainActivity;
 import com.morihacky.android.rxjava.R;
 import com.morihacky.android.rxjava.fragments.BaseFragment;
+
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -76,7 +79,7 @@ public class RxBusDemo_Bottom2Fragment
     @Override
     public void onStop() {
         super.onStop();
-        _subscriptions.unsubscribe();
+        _subscriptions.clear();
     }
 
     // -----------------------------------------------------------------------------------

@@ -8,14 +8,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import butterknife.ButterKnife;
-import butterknife.Bind;
-import butterknife.OnClick;
+
 import com.morihacky.android.rxjava.R;
-import com.morihacky.android.rxjava.RxUtils;
 import com.morihacky.android.rxjava.wiring.LogAdapter;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import rx.Observable;
 import rx.Observer;
 import rx.functions.Action0;
@@ -89,12 +91,6 @@ public class RotationPersist2Fragment
     // -----------------------------------------------------------------------------------
 
     @Override
-    public void onResume() {
-        super.onResume();
-        _subscriptions = RxUtils.getNewCompositeSubIfUnsubscribed(_subscriptions);
-    }
-
-    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         _setupLogger();
@@ -112,7 +108,7 @@ public class RotationPersist2Fragment
     @Override
     public void onPause() {
         super.onPause();
-        RxUtils.unsubscribeIfNotNull(_subscriptions);
+        _subscriptions.clear();
     }
 
     private void _setupLogger() {

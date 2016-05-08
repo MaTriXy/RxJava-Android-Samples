@@ -11,18 +11,23 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-import butterknife.ButterKnife;
-import butterknife.Bind;
-import butterknife.OnClick;
+
 import com.jakewharton.rxbinding.widget.RxTextView;
 import com.jakewharton.rxbinding.widget.TextViewTextChangeEvent;
 import com.morihacky.android.rxjava.R;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import co.kaush.core.util.CoreNullnessUtils;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 import timber.log.Timber;
 
 import static java.lang.String.format;
@@ -41,9 +46,8 @@ public class DebounceSearchEmitterFragment
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (_subscription != null) {
-            _subscription.unsubscribe();
-        }
+        _subscription.unsubscribe();
+        ButterKnife.unbind(this);
     }
 
     @Override
@@ -69,6 +73,12 @@ public class DebounceSearchEmitterFragment
 
         _subscription = RxTextView.textChangeEvents(_inputSearchText)//
               .debounce(400, TimeUnit.MILLISECONDS)// default Scheduler is Computation
+              .filter(new Func1<TextViewTextChangeEvent, Boolean>() {
+                  @Override
+                  public Boolean call(TextViewTextChangeEvent changes) {
+                      return CoreNullnessUtils.isNotNullOrEmpty(_inputSearchText.getText().toString());
+                  }
+              })
               .observeOn(AndroidSchedulers.mainThread())//
               .subscribe(_getSearchObserver());
     }

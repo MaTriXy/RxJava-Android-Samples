@@ -7,11 +7,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import butterknife.ButterKnife;
-import butterknife.Bind;
+
 import com.morihacky.android.rxjava.MainActivity;
 import com.morihacky.android.rxjava.R;
 import com.morihacky.android.rxjava.fragments.BaseFragment;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import rx.functions.Action1;
 import rx.subscriptions.CompositeSubscription;
 
@@ -57,7 +59,7 @@ public class RxBusDemo_Bottom1Fragment
     @Override
     public void onStop() {
         super.onStop();
-        _subscriptions.unsubscribe();
+        _subscriptions.clear();
     }
 
     private void _showTapText() {
