@@ -1,4 +1,4 @@
-<ScrollView
+<?xml version="1.0" encoding="utf-8"?><ScrollView
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -87,6 +87,13 @@
             />
 
         <Button
+            android:id="@+id/btn_demo_timeout"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@string/btn_demo_timeout"
+            />
+
+        <Button
             android:id="@+id/btn_demo_exponential_backoff"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
@@ -99,11 +106,40 @@
             android:layout_width="match_parent"
             android:text="@string/btn_demo_rotation_persist"
             />
+
         <Button
             android:id="@+id/btn_demo_volley"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:text="@string/btn_demo_volley"
+            />
+
+        <Button
+            android:id="@+id/btn_demo_pagination"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@string/btn_demo_pagination"
+            />
+
+        <Button
+            android:id="@+id/btn_demo_networkDetector"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@string/btn_demo_networkDetector"
+            />
+
+        <Button
+            android:id="@+id/btn_demo_using"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@string/btn_demo_using"
+            />
+
+        <Button
+            android:id="@+id/btn_demo_multicastPlayground"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@string/btn_demo_multicastPlayground"
             />
     </LinearLayout>
 </ScrollView>
